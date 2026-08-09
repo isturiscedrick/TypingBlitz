@@ -1,97 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Typing Blitz</title>
-  <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
-  <style>
-    /* Centering the Canvas */
-    body { 
-      margin: 0; 
-      overflow: hidden; 
-      background: #050505; 
-      font-family: 'Michroma', 'Courier New', Courier, monospace; 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typing Blitz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-cyan: #00eaff;
+    --neon-green: #39ff14;
+    --neon-pink: #ff3c5a;
+    --bg-deep: #030308;
+  }
 
-    #startScreen {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.9);
-      color: #0ff;
-      text-align: center;
-      z-index: 10;
-    }
+  * { box-sizing: border-box; }
 
-    #startScreen h1 {
-      font-size: 60px;
-      margin-bottom: 10px;
-      color: #0ff;
-      letter-spacing: 2px;
-      text-shadow: 0 0 24px #0ff, 0 0 60px #0ff, 0 0 8px #fff;
-      font-family: 'Michroma', 'Courier New', Courier, monospace;
-      animation: neonPulse 2s infinite alternate;
-    }
-    #startScreen h2 {
-      font-size: 24px;
-      color: #fff;
-      margin-bottom: 30px;
-      font-weight: 400;
-      letter-spacing: 1px;
-      text-shadow: 0 0 8px #0ff, 0 0 2px #fff;
-      font-family: 'Michroma', 'Courier New', Courier, monospace;
-    }
-    #startScreen p {
-      font-size: 18px;
-      margin: 5px 0;
-      color: #fff;
-      opacity: 0.85;
-      font-family: 'Michroma', 'Courier New', Courier, monospace;
-    }
-    #startButton, #howToButton {
-      margin-top: 24px;
-      padding: 16px 48px;
-      font-size: 22px;
-      font-weight: bold;
-      color: #0ff;
-      background: rgba(0,0,40,0.95);
-      border: 2px solid #0ff;
-      border-radius: 16px;
-      cursor: pointer;
-      box-shadow: 0 0 24px #0ff, 0 0 4px #fff;
-      letter-spacing: 1px;
-      transition: box-shadow 0.3s, background 0.2s, color 0.2s;
-      font-family: 'Michroma', 'Courier New', Courier, monospace;
-      margin-bottom: 12px;
-    }
-    #startButton:hover, #howToButton:hover {
-      background: #0ff;
-      color: #000;
-      box-shadow: 0 0 40px #0ff, 0 0 8px #fff;
-      border-color: #fff;
-    }
-    @keyframes neonPulse {
-      0% { text-shadow: 0 0 24px #0ff, 0 0 60px #0ff, 0 0 8px #fff; }
-      100% { text-shadow: 0 0 48px #0ff, 0 0 120px #0ff, 0 0 16px #fff; }
-    }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: radial-gradient(circle at 50% 20%, #0a1020 0%, #030308 70%);
+    font-family: 'Michroma', 'Courier New', Courier, monospace;
+    overflow: hidden;
+  }
 
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 14px;
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* Ambient page-level accents so canvas doesn't float in a void */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(600px circle at 15% 85%, rgba(0, 234, 255, 0.06), transparent 60%),
+      radial-gradient(600px circle at 85% 15%, rgba(57, 255, 20, 0.05), transparent 60%);
+  }
+
+  .page-header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    letter-spacing: 3px;
+  }
+
+  .page-header .brand {
+    font-size: 13px;
+    color: var(--neon-cyan);
+    opacity: 0.55;
+    text-transform: uppercase;
+  }
+
+  .canvas-frame {
+    position: relative;
+    z-index: 1;
+    border-radius: 22px;
+    padding: 10px;
+    background: linear-gradient(160deg, rgba(0,234,255,0.08), rgba(57,255,20,0.04));
+    box-shadow:
+      0 0 0 1px rgba(0, 234, 255, 0.15),
+      0 0 40px rgba(0, 234, 255, 0.12),
+      0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  .canvas-frame canvas {
+    display: block;
+    border-radius: 14px;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.5) inset;
+  }
+
+  .page-footer {
+    position: relative;
+    z-index: 1;
+    font-size: 11px;
+    color: rgba(200, 235, 255, 0.4);
+    letter-spacing: 1.5px;
+    text-align: center;
+  }
+
+  .page-footer kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background: rgba(0, 234, 255, 0.1);
+    border: 1px solid rgba(0, 234, 255, 0.3);
+    font-family: inherit;
+    font-size: 10px;
+    color: var(--neon-cyan);
+  }
+
+  @media (max-width: 640px) {
+    .canvas-frame { padding: 6px; }
+    .page-header { font-size: 12px; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
 </head>
 <body>
 
+  <div class="bg-glow"></div>
 
+  <div class="page-header">
+    <div class="brand">◆ Neon Survival Series ◆</div>
+  </div>
+
+  <div class="canvas-frame" id="canvasFrame"></div>
+
+  <div class="page-footer">
+    <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> to move &nbsp;•&nbsp; type letters/numbers to destroy enemies
+  </div>
 
   <script src="p5.js"></script>
-
-
+  <script>
+    // Attach the p5 canvas into the styled frame once it's created.
+    // p5's default behavior appends the canvas to <body>; this moves it
+    // into our decorative frame without touching any game logic.
+    const frame = document.getElementById('canvasFrame');
+    const observer = new MutationObserver(() => {
+      const cnv = document.querySelector('canvas');
+      if (cnv && cnv.parentElement !== frame) {
+        frame.appendChild(cnv);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true });
+  </script>
 </body>
 </html>
